@@ -51,6 +51,47 @@ Change: 2026-01-21 20:37:09.546316375 +0000
  Birth: 2026-01-21 20:37:09.546316375 +0000
  ```
 
+ Disabling overlay2 also gives the expected result:
+
+ ```
+> cat /etc/docker/daemon.json
+{
+  "features": {
+    "buildkit": true
+  },
+  "runtimes": {
+    "runsc": {
+      "path": "/usr/local/bin/runsc",
+      "runtimeArgs": [
+        "--overlay2=none"
+      ]
+    }
+  }
+}
+
+> sudo systemctl restart docker
+ ```
+
+ ```
+ > docker run --runtime=runsc --cap-add=all -i overlay-setgid:latest bash -c 'stat /opt/setgid-test && mkdir /opt/setgid-test/dir && stat /opt/setgid-test'
+  File: /opt/setgid-test
+  size: 4096            Blocks: 8          IO Block: 4096   directory
+Device: 11h/17d Inode: 44          Links: 1
+Access: (2775/drwxrwsr-x)  Uid: (    0/    root)   Gid: ( 1001/testuser)
+Access: 2026-01-21 20:21:25.140062801 +0000
+Modify: 2026-01-21 20:21:24.725064180 +0000
+Change: 2026-01-21 20:21:25.096807222 +0000
+ Birth: 1970-01-01 00:00:00.000000000 +0000
+  File: /opt/setgid-test
+  size: 4096            Blocks: 8          IO Block: 4096   directory
+Device: 11h/17d Inode: 44          Links: 2
+Access: (2775/drwxrwsr-x)  Uid: (    0/    root)   Gid: ( 1001/testuser)
+Access: 2026-01-21 20:21:25.140062801 +0000
+Modify: 2026-01-21 20:45:11.605115401 +0000
+Change: 2026-01-21 20:45:11.605115401 +0000
+ Birth: 1970-01-01 00:00:00.000000000 +0000
+```
+
  ## Version Information
 
  ```
