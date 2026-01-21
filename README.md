@@ -1,4 +1,4 @@
-This is a minimal repro of a gVisor bug that causes a directory to lose its setgid bit when its modified and copied into the overlay2 layer.
+This is a minimal repro of a gVisor bug that causes a directory to lose its setgid bit when it's modified and copied into the overlay2 layer.
 
 First we build:
 ```
@@ -27,7 +27,7 @@ Change: 2026-01-21 20:31:54.006969103 +0000
  Birth: -
 ```
 
-`/opt/setgid-test` starts with `2775/drwxrwsr-x` and after a child directory is added it unexpectedly changes to `0775/drwxrwxr-x`, losing its setgid bit.
+`/opt/setgid-test` starts with `2775/drwxrwsr-x` and after a child directory is added it unexpectedly changes to `0775/drwxrwxr-x`, losing its setgid bit. I assume the size change has something to do with copy-on-write copying the file into the overlay.
 
 Using `runc` instead gives the expected result:
 
@@ -88,4 +88,19 @@ Server:
 > runsc --version
 runsc version release-20251020.0
 spec: 1.1.0-rc.1
+```
+
+```
+> cat /etc/docker/daemon.json
+{
+  "features": {
+    "buildkit": true
+  },
+  "runtimes": {
+    "runsc": {
+      "path": "/usr/local/bin/runsc",
+      "runtimeArgs": []
+    }
+  }
+}
 ```
